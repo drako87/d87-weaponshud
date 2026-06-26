@@ -11,13 +11,24 @@ window.addEventListener('message', function(event) {
         
         let scale = data.size ? data.size : 1.0;
         container.style.transform = `translateX(-50%) scale(${scale})`;
-        lastClipValue = -1; // Resetear contador al desenfundar
+        lastClipValue = -1; 
     } 
     
     else if (data.action === "hide") {
         document.getElementById('d87-weapon').style.display = 'none';
+        document.getElementById('d87-crosshair').style.display = 'none'; // Escondemos puntero al guardar
         lastClipValue = -1;
     } 
+
+    // NUEVO: Control de visibilidad del puntero táctico al apuntar
+    else if (data.action === "toggle_crosshair") {
+        let crosshair = document.getElementById('d87-crosshair');
+        if (data.status) {
+            crosshair.style.display = 'flex';
+        } else {
+            crosshair.style.display = 'none';
+        }
+    }
     
     else if (data.action === "update") {
         let container = document.getElementById('d87-weapon');
@@ -25,6 +36,7 @@ window.addEventListener('message', function(event) {
         let reserveEl = document.getElementById('ammo-reserve');
         let dividerEl = document.querySelector('.ammo-divider');
         let ammoContainer = document.querySelector('.ammo-container');
+        let crosshairDot = document.querySelector('.crosshair-dot');
 
         if (data.weapon) {
             document.getElementById('weapon-name').innerText = data.weapon;
@@ -32,17 +44,17 @@ window.addEventListener('message', function(event) {
 
         if (data.isSpecial) {
             ammoContainer.style.display = 'none';
+            if (crosshairDot) crosshairDot.classList.remove('crosshair-critical');
         } else {
             ammoContainer.style.display = 'flex';
 
-            // OPTIMIZACIÓN 2: Lógica visual reactiva de recarga (RELOAD)
             if (data.reloading) {
                 clipEl.innerText = "RECARGANDO...";
                 clipEl.className = "reloading-text blink-reload";
                 reserveEl.style.display = 'none';
                 dividerEl.style.display = 'none';
+                if (crosshairDot) crosshairDot.classList.add('crosshair-critical');
             } else {
-                // Estado de disparo normal
                 reserveEl.style.display = 'inline';
                 dividerEl.style.display = 'inline';
                 
@@ -52,18 +64,20 @@ window.addEventListener('message', function(event) {
                 clipEl.innerText = clipStr;
                 reserveEl.innerText = reserveStr;
 
-                // OPTIMIZACIÓN 3: Disparar la animación de retroceso (Recoil) si bajan las balas
                 if (lastClipValue !== -1 && data.clip < lastClipValue) {
                     container.classList.remove('recoil-animation');
-                    void container.offsetWidth; // Truco de JS para resetear y forzar el renderizado de la animación
+                    void container.offsetWidth; 
                     container.classList.add('recoil-animation');
                 }
                 lastClipValue = data.clip;
 
+                // Control del color de alerta del cargador y del puntero en sintonía
                 if (data.clip <= 5) {
                     clipEl.className = "ammo-critical";
+                    if (crosshairDot) crosshairDot.classList.add('crosshair-critical'); // Puntero Rojo si quedan pocas balas
                 } else {
                     clipEl.className = "";
+                    if (crosshairDot) crosshairDot.classList.remove('crosshair-critical'); // Puntero Azul normal
                 }
             }
         }
