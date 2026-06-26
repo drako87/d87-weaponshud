@@ -41,7 +41,7 @@ Permite calibrar la interfaz de forma externa y rápida a través de variables s
 Config = {}
 
 -- URL de tu repositorio público en GitHub para el control de versiones
-Config.GitHubRepo = 'https://github.com'
+Config.GitHubRepo = 'https://github.com/drako87/d87-weaponshud'
 
 -- CONFIGURACIÓN DE POSICIÓN Y TAMAÑO VISUAL
 Config.Size = 1.0            -- Escala general del HUD (0.8 = Más chico, 1.2 = Más grande)
