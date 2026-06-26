@@ -12,7 +12,7 @@ local SpecialWeapons = {
 -- Inicialización en consola
 CreateThread(function()
     print('^4==================================================================^7')
-    print('^2[D87 Weapons HUD]^7 Inicializado por ^3Drako87/Dracatt^7 con éxito.')
+    print('^2[D87 Weapons HUD]^7 Inicializado con éxito.')
     print('^4==================================================================^7')
 end)
 
