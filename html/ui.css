@@ -6,6 +6,41 @@ body {
     user-select: none;
 }
 
+/* ========================================================================= */
+/* DISEÑO DEL NUEVO PUNTERO CENTRADO (D87 TACTICAL CROSSHAIR)                */
+/* ========================================================================= */
+#d87-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.crosshair-dot {
+    width: 4px;
+    height: 4px;
+    background-color: #3b82f6; /* Azul eléctrico D87 por defecto */
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.6); /* Borde de contraste negro */
+    box-shadow: 0 0 6px #3b82f6, 0 0 2px rgba(0,0,0,0.8);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Estado del puntero cuando quedan pocas balas */
+.crosshair-critical {
+    background-color: #ef4444 !important; /* Rojo de alerta */
+    box-shadow: 0 0 8px #ef4444, 0 0 2px rgba(0,0,0,0.8) !important;
+}
+
+/* ========================================================================= */
+/* ELEMENTOS DEL CONTADOR INFERIOR CENTRAL                                   */
+/* ========================================================================= */
 #d87-weapon {
     position: absolute;
     bottom: 40px; 
@@ -16,17 +51,16 @@ body {
     align-items: center; 
     gap: 6px;
     background: transparent;
-    transition: transform 0.05s ease-out; /* Suaviza el retroceso visual */
+    transition: transform 0.05s ease-out;
 }
 
-/* OPTIMIZACIÓN 3: Clase de animación de disparo (Recoil effect) */
 .recoil-animation {
     animation: uiRecoil 0.08s ease-in-out;
 }
 
 @keyframes uiRecoil {
     0% { transform: translateX(-50%) scale(1.0) translateY(0); }
-    50% { transform: translateX(-50%) scale(1.04) translateY(-3px); } /* Pega un pequeño salto */
+    50% { transform: translateX(-50%) scale(1.04) translateY(-3px); }
     100% { transform: translateX(-50%) scale(1.0) translateY(0); }
 }
 
@@ -65,11 +99,10 @@ body {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6), 0px 2px 5px rgba(0, 0, 0, 0.4);
 }
 
-/* Clase estética exclusiva para el aviso de recarga en pantalla */
 .reloading-text {
     font-size: 1.1rem !important;
     font-weight: 900 !important;
-    color: #facc15 !important; /* Amarillo de advertencia */
+    color: #facc15 !important;
     letter-spacing: 2px;
     text-shadow: 0 0 8px rgba(250, 204, 21, 0.6) !important;
 }
