@@ -1,7 +1,4 @@
-// Variables globales internas para almacenar los límites recibidos del Config
-let currentFuelLimit = 20;
-let currentEngineLimit = 30;
-let storedVehicleName = "Cargando...";
+let lastClipValue = -1;
 
 window.addEventListener('message', function(event) {
     let data = event.data;
@@ -14,44 +11,64 @@ window.addEventListener('message', function(event) {
         
         let scale = data.size ? data.size : 1.0;
         container.style.transform = `translateX(-50%) scale(${scale})`;
+        lastClipValue = -1; // Resetear contador al desenfundar
     } 
     
     else if (data.action === "hide") {
         document.getElementById('d87-weapon').style.display = 'none';
+        lastClipValue = -1;
     } 
     
     else if (data.action === "update") {
-        // 1. Actualizar el nombre real del arma
+        let container = document.getElementById('d87-weapon');
+        let clipEl = document.getElementById('ammo-clip');
+        let reserveEl = document.getElementById('ammo-reserve');
+        let dividerEl = document.querySelector('.ammo-divider');
+        let ammoContainer = document.querySelector('.ammo-container');
+
         if (data.weapon) {
             document.getElementById('weapon-name').innerText = data.weapon;
         }
 
-        // ADAPTACIÓN DE MUNICIÓN INTELIGENTE (NUEVO)
-        let ammoContainer = document.querySelector('.ammo-container');
         if (data.isSpecial) {
-            // Si es un arma especial (Taser/Up-n-Atomizer), escondemos los números por completo
             ammoContainer.style.display = 'none';
         } else {
-            // Si es un arma normal, nos aseguramos de que el contenedor de balas sea visible
             ammoContainer.style.display = 'flex';
 
-            // Dar formato al contador de munición habitual
-            let clipStr = data.clip.toString().padStart(2, '0');
-            let reserveStr = data.reserve.toString().padStart(3, '0');
-
-            let clipEl = document.getElementById('ammo-clip');
-            clipEl.innerText = clipStr;
-            document.getElementById('ammo-reserve').innerText = reserveStr;
-
-            // Alerta si quedan pocas balas en el cargador actual
-            if (data.clip <= 5) {
-                clipEl.classList.add('ammo-critical');
+            // OPTIMIZACIÓN 2: Lógica visual reactiva de recarga (RELOAD)
+            if (data.reloading) {
+                clipEl.innerText = "RECARGANDO...";
+                clipEl.className = "reloading-text blink-reload";
+                reserveEl.style.display = 'none';
+                dividerEl.style.display = 'none';
             } else {
-                clipEl.classList.remove('ammo-critical');
+                // Estado de disparo normal
+                reserveEl.style.display = 'inline';
+                dividerEl.style.display = 'inline';
+                
+                let clipStr = data.clip.toString().padStart(2, '0');
+                let reserveStr = data.reserve.toString().padStart(3, '0');
+
+                clipEl.innerText = clipStr;
+                reserveEl.innerText = reserveStr;
+
+                // OPTIMIZACIÓN 3: Disparar la animación de retroceso (Recoil) si bajan las balas
+                if (lastClipValue !== -1 && data.clip < lastClipValue) {
+                    container.classList.remove('recoil-animation');
+                    void container.offsetWidth; // Truco de JS para resetear y forzar el renderizado de la animación
+                    container.classList.add('recoil-animation');
+                }
+                lastClipValue = data.clip;
+
+                if (data.clip <= 5) {
+                    clipEl.className = "ammo-critical";
+                } else {
+                    clipEl.className = "";
+                }
             }
         }
 
-        // 3. Control y color de la barra de Durabilidad del Item (ox_inventory)
+        // 3. Durabilidad
         let dBar = document.getElementById('durability-bar');
         if (dBar && data.durability !== undefined) {
             dBar.style.width = data.durability + "%";
