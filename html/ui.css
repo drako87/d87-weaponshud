@@ -1,0 +1,110 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    user-select: none;
+}
+
+#d87-weapon {
+    position: absolute;
+    bottom: 40px; 
+    left: 50%;    
+    transform: translateX(-50%) scale(1.0); 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    gap: 6px;
+    background: transparent;
+}
+
+.weapon-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.weapon-key-icon {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+#weapon-name {
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.ammo-container {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+#ammo-clip {
+    font-size: 2.6rem; 
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6), 0px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.ammo-divider {
+    font-size: 1rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.25);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+#ammo-reserve {
+    font-size: 1.2rem; 
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.45);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.ammo-critical {
+    color: #f87171 !important;
+    text-shadow: 0 0 6px rgba(248, 113, 113, 0.6) !important;
+}
+
+/* ========================================================================= */
+/* NUEVA ESTRUCTURA GRÁFICA PARA LA DURABILIDAD DEL ARMA                     */
+/* ========================================================================= */
+
+.durability-container {
+    width: 90px; /* Ancho alineado con el tamaño de los números de arriba */
+    display: flex;
+    justify-content: center;
+    margin-top: 2px;
+}
+
+.durability-bg {
+    width: 100%;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.5); /* Fondo oscuro de la pista */
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.durability-fill {
+    height: 100%;
+    width: 100%; /* Inicia llena al 100% */
+    background-color: #4ade80; --/* Color verde por defecto (Nueva) */
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Animación de parpadeo por si el arma está a punto de romperse del todo */
+.blink-critical {
+    animation: weaponsBlink 1s infinite steps(2, start);
+}
+@keyframes weaponsBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
