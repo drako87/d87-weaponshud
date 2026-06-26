@@ -3,8 +3,8 @@ local currentWeaponData = nil
 local isBike = false
 local isSpecialWeapon = false
 local lastClipCount = -1
+local isAiming = false
 
--- Tabla de hashes de armas especiales
 local SpecialWeapons = {
     [`WEAPON_STUNGUN`] = true,
     [`WEAPON_STUNGUN_MP`] = true,
@@ -13,44 +13,54 @@ local SpecialWeapons = {
     [`WEAPON_RAYMINIGUN`] = true,
 }
 
--- Inicialización
 CreateThread(function()
-    print('^4==================================================================^7')
     print('^2[D87 Weapons HUD]^7 Inicializado con éxito.')
-    print('^4==================================================================^7')
 end)
 
--- OPTIMIZACIÓN 1: Evento reactivo de ox_inventory (Adiós al bucle de escaneo de item)
 RegisterNetEvent('ox_inventory:currentWeapon', function(weaponData)
     currentWeaponData = weaponData
     if not weaponData then
         if isWeaponEquipped then
             isWeaponEquipped = false
             lastClipCount = -1
+            isAiming = false
             SendNUIMessage({ action = "hide" })
         end
     end
 end)
 
--- Hilo Principal Avanzado de Telemetría (0.00ms en reposo)
 CreateThread(function()
     while true do
         local sleep = 500
         local ped = PlayerPedId()
         
-        -- OPTIMIZACIÓN 4: Ocultar en pausa o con inventario abierto
         local isPauseOpen = IsPauseMenuActive()
-        local isInvOpen = false
-        if GetResourceState('ox_inventory') == 'started' then
-            isInvOpen = exports.ox_inventory:isInventoryOpen()
-        end
+        local isInvOpen = LocalPlayer.state.invOpen or false
 
         if currentWeaponData and not isPauseOpen and not isInvOpen then
-            sleep = 100 -- Se activa solo cuando tienes un arma en las manos
+            sleep = 50 -- Aceleramos a 50ms para que la detección de apuntado sea instantánea al pulsar el clic
             
             local weaponHash = currentWeaponData.hash
             local weaponGroup = GetWeapontypeGroup(weaponHash)
             isSpecialWeapon = SpecialWeapons[weaponHash] or (weaponGroup == `GROUP_MELEE`) or false
+
+            -- DETECCION DE APUNTADO ACTIVO (Mando o Ratón)
+            local isCurrentlyAiming = false
+            if not isSpecialWeapon or weaponHash == `WEAPON_STUNGUN` or weaponHash == `WEAPON_RAYPISTOL` then
+                -- Desactivamos la retícula nativa fea de GTA V en cada frame si está apuntando
+                HideHudComponentThisFrame(14) 
+                
+                -- Detectamos si está apuntando de verdad
+                if IsPlayerFreeAiming(PlayerId()) or IsControlPressed(0, 25) then
+                    isCurrentlyAiming = true
+                end
+            end
+
+            -- Si cambia el estado de apuntado, avisamos a la pantalla
+            if isCurrentlyAiming ~= isAiming then
+                isAiming = isCurrentlyAiming
+                SendNUIMessage({ action = "toggle_crosshair", status = isAiming })
+            end
 
             -- 1. Munición en cargador y estado de recarga
             local ammoInClip = 0
@@ -58,9 +68,8 @@ CreateThread(function()
             
             if not isSpecialWeapon then
                 _, ammoInClip = GetAmmoInClip(ped, weaponHash)
-                isReloading = IsPedReloading(ped) -- OPTIMIZACIÓN 2: Detectar recarga
+                isReloading = IsPedReloading(ped)
                 
-                -- OPTIMIZACIÓN 5: Sonido metálico al quedarse sin balas
                 if ammoInClip == 0 and lastClipCount > 0 then
                     PlaySoundFrontend(-1, "FACTION_TEAM_MENU_SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
                 end
@@ -86,14 +95,6 @@ CreateThread(function()
 
             if not isWeaponEquipped then
                 isWeaponEquipped = true
-                local veh = GetVehiclePedIsIn(ped, false)
-                if veh ~= 0 then
-                    local vehClass = GetVehicleClass(veh)
-                    isBike = (vehClass == 8 or vehClass == 13 or vehClass == 3 or vehClass == 11)
-                else
-                    isBike = false
-                end
-
                 SendNUIMessage({
                     action = "show",
                     size = Config.Size,
@@ -114,9 +115,10 @@ CreateThread(function()
             if isWeaponEquipped or isPauseOpen or isInvOpen then
                 isWeaponEquipped = false
                 lastClipCount = -1
+                isAiming = false
                 SendNUIMessage({ action = "hide" })
                 if isPauseOpen or isInvOpen then
-                    sleep = 200 -- Relajamos el hilo si el usuario está en menús
+                    sleep = 250
                 end
             end
         end
