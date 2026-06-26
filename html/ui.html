@@ -5,21 +5,24 @@
     <link rel="stylesheet" href="ui.css">
 </head>
 <body>
+    <!-- PUNTERO/CROSSHAIR TÁCTICO DINÁMICO (NUEVO) -->
+    <div id="d87-crosshair" style="display: none;">
+        <div class="crosshair-dot"></div>
+    </div>
+
+    <!-- PANEL INFERIOR CENTRAL DE MUNICIÓN -->
     <div id="d87-weapon" style="display: none;">
-        <!-- Fila Superior: Nombre del Arma Sincronizado -->
         <div class="weapon-info">
             <span class="weapon-key-icon">⚔️</span>
             <span id="weapon-name">CARGANDO...</span>
         </div>
 
-        <!-- Fila Central: Telemetría de Balas (Se oculta dinámicamente) -->
         <div class="ammo-container">
             <span id="ammo-clip">00</span>
             <span class="ammo-divider">/</span>
             <span id="ammo-reserve">000</span>
         </div>
 
-        <!-- Fila Inferior: Barra de Durabilidad del Objeto -->
         <div class="durability-container">
             <div class="durability-bg">
                 <div id="durability-bar" class="durability-fill"></div>
